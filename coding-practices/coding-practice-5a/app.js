@@ -26,7 +26,7 @@ const initializeServerAndDatabase = async () => {
 initializeServerAndDatabase();
 app.get("/movies", async (request, response) => {
   try {
-    const moviesQ = `select * from movie`;
+    const moviesQ = `select movie_name from movie`;
     const dbResponse = await db.all(moviesQ);
     response.send(dbResponse);
   } catch (error) {

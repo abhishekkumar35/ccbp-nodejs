@@ -142,3 +142,20 @@ app.delete("/books/:bookId", async (request, response) => {
     response.send(`error: ${error}`);
   }
 });
+app.get("/author/:authorId/books", async (request, response) => {
+  try {
+    const authorId = request.params;
+    const authorBooksQuery = `
+    select  
+    *
+    from book
+      join author on
+      book.author_id = author.author_id
+    where
+    author.author_id = ${authorId};`;
+    const dbResponseAuthorBooks = await db.all(authorBooksQuery);
+    response.send(dbResponseAuthorBooks);
+  } catch (error) {
+    response.send(`error:${error}`);
+  }
+});

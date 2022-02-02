@@ -23,11 +23,24 @@ const initializeServerAndDatabase = async () => {
   }
 };
 initializeServerAndDatabase();
+function playerObject(obj) {
+  console.log(obj);
+  return {
+    playerId: obj.player_id,
+    playerName: obj.player_name,
+    jerseyNumber: obj.jersey_number,
+    role: obj.role,
+  };
+}
 app.get("/players/", async (req, res) => {
   try {
     const fetchAllPlayersQuery = `select * from cricket_team;`;
     const dbResponse = await db.all(fetchAllPlayersQuery);
-    res.send(dbResponse);
+    const arrayOfPlayers = [];
+    dbResponse.forEach((player) => {
+      arrayOfPlayers.push(playerObject(player));
+    });
+    res.send(arrayOfPlayers);
   } catch (error) {
     console.log(error);
   }
@@ -39,7 +52,7 @@ app.get("/players/:playerId/", async (request, response) => {
     const getPlayerByIdQuery = `select * from cricket_team 
     where player_id = ${playerId};`;
     const dbResponse = await db.get(getPlayerByIdQuery);
-    response.send(dbResponse);
+    response.send(playerObject(dbResponse));
   } catch (error) {
     console.log(`${error}`);
   }

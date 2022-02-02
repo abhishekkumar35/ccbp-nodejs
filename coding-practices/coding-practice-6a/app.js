@@ -29,7 +29,16 @@ app.get("/states/", async (request, response) => {
   try {
     const statesQ = `select * from state;`;
     const dbResponse = await db.all(statesQ);
-    response.send(dbResponse);
+
+    response.send(
+      dbResponse.map((e) => {
+        return {
+          stateId: e.state_id,
+          stateName: e.state_name,
+          population: e.population,
+        };
+      })
+    );
   } catch (error) {
     console.log(error);
   }
@@ -41,7 +50,12 @@ app.get("/states/:stateId/", async (request, response) => {
     const statesQ = `select * from state where
       state_id = ${stateId};`;
     const dbResponse = await db.get(statesQ);
-    response.send(dbResponse);
+
+    response.send({
+      stateId: dbResponse.state_id,
+      stateName: dbResponse.state_name,
+      population: dbResponse.population,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -55,7 +69,16 @@ app.get("/districts/:districtId/", async (request, response) => {
      where
       district_id = ${districtId};`;
     const dbResponse = await db.get(districtQ);
-    response.send(dbResponse);
+    const e = dbResponse;
+    response.send({
+      districtId: e.district_id,
+      districtName: e.district_name,
+      stateId: e.state_id,
+      cases: e.cases,
+      cured: e.cured,
+      active: e.active,
+      deaths: e.deaths,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -65,13 +88,16 @@ app.get("/states/:stateId/stats/", async (request, response) => {
   try {
     const { stateId } = request.params;
     const statesQ = `select
-      count(cases) as totalCases,
-      count(cured) as totalCured,
-      count(active) as totalActive,
-      count(deaths) as totalDeaths
-     from state natural join district where
-      state_id = ${stateId};`;
+      sum(cases) as totalCases,
+      sum(cured) as totalCured,
+      sum(active) as totalActive,
+      sum(deaths) as totalDeaths
+     from district 
+     where state_id = ${stateId};
+     `;
     const dbResponse = await db.get(statesQ);
+
+    const e = dbResponse;
     response.send(dbResponse);
   } catch (error) {
     console.log(error);
@@ -81,10 +107,11 @@ app.get("/states/:stateId/stats/", async (request, response) => {
 app.get("/districts/:districtId/details/", async (request, response) => {
   try {
     const { districtId } = request.params;
-    const districtQ = `select * from district where
-      state_id = ${districtId};`;
+    const districtQ = `select state_name from state natural join
+     district where
+      district_id = ${districtId};`;
     const dbResponse = await db.get(districtQ);
-    response.send(dbResponse);
+    response.send({ stateName: dbResponse.state_name });
   } catch (error) {
     console.log(error);
   }
@@ -103,7 +130,7 @@ app.post("/districts/", async (request, response) => {
     } = districtDetails;
     const districtQ = `insert into district 
    (district_name,state_id,cases,cured,active,deaths) values
-   (${districtName},${stateId},${cases},${cured},${active},${deaths});`;
+   ('${districtName}',${stateId},${cases},${cured},${active},${deaths});`;
     await db.run(districtQ);
     response.send("District Successfully Added");
   } catch (error) {
@@ -123,7 +150,7 @@ app.put("/districts/:districtId/", async (request, response) => {
       deaths,
     } = districtDetails;
     const districtQ = `update  district set
- district_name=${districtName},state_id=${stateId},cases=${cases},cured=${cured},active=${active},deaths=${deaths}
+ district_name='${districtName}',state_id=${stateId},cases=${cases},cured=${cured},active=${active},deaths=${deaths}
  where district_id = ${districtId}
    ;`;
     await db.run(districtQ);

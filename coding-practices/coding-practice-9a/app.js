@@ -98,17 +98,22 @@ app.put("/change-password", async (request, response) => {
         dbUser.password
       );
       if (oldPasswordCheck) {
-        const hashedPassword = bcrypt.hash(newPassword, 14);
-        const changePasswordQ = `update 
-        user set password = '${hashedPassword}'
-        where username = '${username}'
+        if (newPassword.length < 5) {
+          response.status(400);
+          response.send("Password is too short");
+        } else {
+          const hashedPassword = bcrypt.hash(newPassword, 14);
+          const changePasswordQ = `update 
+        user 
+        set 
+        password = '${hashedPassword}'
+        where 
+        username = '${username}'
         `;
-        await db.run(changePasswordQ);
-        response.status(200);
-        response.send("Password updated");
-      } else if (newPassword.length < 5) {
-        response.status(400);
-        response.send("Password is too short");
+          await db.run(changePasswordQ); // updating password
+          response.status(200);
+          response.send("Password updated");
+        }
       } else {
         response.status(400);
         response.send("Invalid current password");

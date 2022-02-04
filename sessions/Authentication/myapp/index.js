@@ -45,8 +45,7 @@ app.post("/users", async (request, response) => {
     const { username, name, password } = request.body;
     const sqlUserCheck = `select * from user where username = '${username}';`;
     const dbRes = await db.all(sqlUserCheck);
-    console.log(dbRes);
-    dbRes === undefined ? console.log(true) : console.log(false);
+    dbRes[0] === undefined ? console.log(true) : console.log(false);
     response.send(dbRes);
   } catch (error) {
     console.log(error);

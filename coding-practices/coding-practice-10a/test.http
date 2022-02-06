@@ -1,0 +1,14 @@
+post http://localhost:3000/login 
+
+{
+    "username" : "christopher_phillips",
+    "password" : "christy@123"
+}
+
+###
+get http://localhost:3000/states 
+Authorization: bearer key
+
+###
+delete http://localhost:3000//districts/321
+Authorization: : bearer key

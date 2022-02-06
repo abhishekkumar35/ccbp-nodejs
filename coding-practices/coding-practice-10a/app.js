@@ -149,7 +149,6 @@ app.get("/states/:stateId", authenticateUser, async (request, response) => {
     sum(cured) as totalCured,
     sum(active) as totalActive,
     sum(deaths) as totalDeaths
-    
     from district where state_id = ${stateId}`;
     const dbResponse = await db.get(sqlQ);
     const state = dbResponse;
@@ -159,6 +158,52 @@ app.get("/states/:stateId", authenticateUser, async (request, response) => {
   }
 });
 
-// app.post();
-
+app.post("/districts/", authenticateUser, async (request, response) => {
+  try {
+    const districtId = request.params;
+    const {
+      districtName,
+      stateId,
+      cases,
+      cured,
+      active,
+      deaths,
+    } = request.body;
+    const sqlQ = `insert into district
+     (district_name,state_id,cases,cured,active,deaths) 
+    values (${districtName},${stateId},${cases},${cured},
+        ${active},${deaths});
+        `;
+    await db.run(sqlQ);
+    response.send("District Successfully Added");
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.put("/districts/:districtId", async (request, response) => {
+  try {
+    const districtId = request.params;
+    const {
+      districtName,
+      stateId,
+      cases,
+      cured,
+      active,
+      deaths,
+    } = request.body;
+    const sqlQ = `update district set 
+        district_name= ${districtName},
+        state_id= ${stateId},
+        cases = ${cases},
+        cured=${cured},
+        active=${active},
+        deaths=${deaths}
+        where district_id = ${districtId};
+        `;
+    await db.run(sqlQ);
+    response.send("District Details Updated");
+  } catch (error) {
+    console.log(error);
+  }
+});
 module.exports = app;

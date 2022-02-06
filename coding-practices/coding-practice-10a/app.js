@@ -39,7 +39,7 @@ const authenticateUser = (request, response, next) => {
     response.status(401);
     response.status("Invalid JWT Token");
   } else {
-    jwt.verify(jwtToken, SECRET_KEY, async (error, payload) => {
+    jwt.verify(jwtToken, SECRET_KEY, (error, payload) => {
       if (error) {
         response.status(401);
         response.send("Invalid JWT Token");
@@ -159,6 +159,6 @@ app.get("/states/:stateId", authenticateUser, async (request, response) => {
   }
 });
 
-app.post();
+// app.post();
 
 module.exports = app;

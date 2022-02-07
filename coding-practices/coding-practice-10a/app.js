@@ -37,7 +37,7 @@ const authenticateUser = (request, response, next) => {
   }
   if (jwtToken === undefined) {
     response.status(401);
-    response.status("Invalid JWT Token");
+    response.send("Invalid JWT Token");
   } else {
     jwt.verify(jwtToken, SECRET_KEY, (error, payload) => {
       if (error) {

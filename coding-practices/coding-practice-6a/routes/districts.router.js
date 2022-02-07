@@ -1,10 +1,12 @@
 const express = require("express");
 const path = require("path");
 const districtsRouter = express.Router();
-const districtsController = require(path.join(
+const districtsController = require(`${path.join(
   __dirname,
-  "districts.controller"
-));
+  "..",
+  "controllers",
+  "districts.controller.js"
+)}`);
 
 districtsRouter.get(
   "/:districtId/details/",

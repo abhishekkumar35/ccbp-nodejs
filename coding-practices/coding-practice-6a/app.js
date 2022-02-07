@@ -12,10 +12,9 @@ const statesRouter = require(path.join(__dirname, "routes", "states.router"));
 const app = express();
 app.use(express.json()); // express json parser
 const dbPath = path.join(__dirname, "models", "covid19India.db");
+console.log(dbPath);
 
 // routers
-const statesRouter = express.Router();
-const districtRouter = express.Router();
 
 let db = null;
 const PORT = 3000;

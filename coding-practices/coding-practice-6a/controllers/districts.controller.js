@@ -21,7 +21,7 @@ async function getDistrictById(request, response) {
   }
 }
 
- async function getStateNameByDistrictId(request, response) => {
+async function getStateNameByDistrictId(request, response) {
   try {
     const { districtId } = request.params;
     const districtQ = `select state_name from state natural join
@@ -55,8 +55,7 @@ async function insertADistrict(request, response) {
   }
 }
 
-
-async function updateDistrict(request, response)  {
+async function updateDistrict(request, response) {
   try {
     const { districtId } = request.params;
     const districtDetails = request.body;
@@ -92,9 +91,9 @@ async function deleteDistrict(request, response) {
 }
 
 module.exports = {
-    getDistrictById,
-    getStateNameByDistrictId,
-    insertADistrict,
-    updateDistrict,
-    deleteDistrict
-}
+  getDistrictById,
+  getStateNameByDistrictId,
+  insertADistrict,
+  updateDistrict,
+  deleteDistrict,
+};

@@ -1,7 +1,11 @@
+const path = require("path");
+const dbModulePath = path.join(__dirname, "..", "dbServer");
+const { db, PORT, initializeServerAndDatabase } = require(dbModulePath);
+
 async function getAllStates(request, response) {
   try {
     const statesQ = `select * from state;`;
-    const dbResponse = await db.all(statesQ);
+    const dbResponse = await db.database.all(statesQ);
 
     response.send(
       dbResponse.map((e) => {
@@ -22,7 +26,7 @@ async function getStateById(request, response) {
     const { stateId } = request.params;
     const statesQ = `select * from state where
       state_id = ${stateId};`;
-    const dbResponse = await db.get(statesQ);
+    const dbResponse = await db.database.get(statesQ);
 
     response.send({
       stateId: dbResponse.state_id,
@@ -45,7 +49,7 @@ async function getStatsByState(request, response) {
      from district 
      where state_id = ${stateId};
      `;
-    const dbResponse = await db.get(statesQ);
+    const dbResponse = await db.database.get(statesQ);
 
     const e = dbResponse;
     response.send(dbResponse);

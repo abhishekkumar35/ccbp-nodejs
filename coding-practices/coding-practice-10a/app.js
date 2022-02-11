@@ -39,7 +39,7 @@ const authenticateUser = (request, response, next) => {
     response.status(401);
     response.send("Invalid JWT Token");
   } else {
-    jwt.verify(jwtToken, SECRET_KEY, (error, payload) => {
+    jwt.verify(jwtToken, SECRET_KEY, async (error, payload) => {
       if (error) {
         response.status(401);
         response.send("Invalid JWT Token");
@@ -105,25 +105,29 @@ app.get("/states/:stateId", authenticateUser, async (request, response) => {
   }
 });
 
-app.get("/states/:districtId", authenticateUser, async (request, response) => {
-  try {
-    const { districtId } = request.params;
-    const sqlQ = `select * from district where district_id = ${districtId}`;
-    const dbResponse = await db.get(sqlQ);
-    const district = dbResponse;
-    response.send({
-      districtId: district.district_id,
-      districtName: district.district_name,
-      stateId: district.state_id,
-      cases: district.cases,
-      cured: district.cured,
-      active: district.active,
-      deaths: district.deaths,
-    });
-  } catch (error) {
-    console.log(error);
+app.get(
+  "/districts/:districtId",
+  authenticateUser,
+  async (request, response) => {
+    try {
+      const { districtId } = request.params;
+      const sqlQ = `select * from district where district_id = ${districtId}`;
+      const dbResponse = await db.get(sqlQ);
+      const district = dbResponse;
+      response.send({
+        districtId: district.district_id,
+        districtName: district.district_name,
+        stateId: district.state_id,
+        cases: district.cases,
+        cured: district.cured,
+        active: district.active,
+        deaths: district.deaths,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 app.delete(
   "/districts/:districtId",
@@ -141,26 +145,29 @@ app.delete(
   }
 );
 
-app.get("/states/:stateId", authenticateUser, async (request, response) => {
-  try {
-    const { stateId } = request.params;
-    const sqlQ = `select 
+app.get(
+  "/states/:stateId/stats",
+  authenticateUser,
+  async (request, response) => {
+    try {
+      const { stateId } = request.params;
+      const sqlQ = `select 
     sum(cases) as totalCases,
     sum(cured) as totalCured,
     sum(active) as totalActive,
     sum(deaths) as totalDeaths
     from district where state_id = ${stateId}`;
-    const dbResponse = await db.get(sqlQ);
-    const state = dbResponse;
-    response.send(dbResponse);
-  } catch (error) {
-    console.log(error);
+      const dbResponse = await db.get(sqlQ);
+      const state = dbResponse;
+      response.send(dbResponse);
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 app.post("/districts/", authenticateUser, async (request, response) => {
   try {
-    const districtId = request.params;
     const {
       districtName,
       stateId,
@@ -171,7 +178,7 @@ app.post("/districts/", authenticateUser, async (request, response) => {
     } = request.body;
     const sqlQ = `insert into district
      (district_name,state_id,cases,cured,active,deaths) 
-    values (${districtName},${stateId},${cases},${cured},
+    values ('${districtName}',${stateId},${cases},${cured},
         ${active},${deaths});
         `;
     await db.run(sqlQ);
@@ -180,19 +187,22 @@ app.post("/districts/", authenticateUser, async (request, response) => {
     console.log(error);
   }
 });
-app.put("/districts/:districtId", async (request, response) => {
-  try {
-    const districtId = request.params;
-    const {
-      districtName,
-      stateId,
-      cases,
-      cured,
-      active,
-      deaths,
-    } = request.body;
-    const sqlQ = `update district set 
-        district_name= ${districtName},
+app.put(
+  "/districts/:districtId",
+  authenticateUser,
+  async (request, response) => {
+    try {
+      const { districtId } = request.params;
+      const {
+        districtName,
+        stateId,
+        cases,
+        cured,
+        active,
+        deaths,
+      } = request.body;
+      const sqlQ = `update district set 
+        district_name= '${districtName}',
         state_id= ${stateId},
         cases = ${cases},
         cured=${cured},
@@ -200,10 +210,11 @@ app.put("/districts/:districtId", async (request, response) => {
         deaths=${deaths}
         where district_id = ${districtId};
         `;
-    await db.run(sqlQ);
-    response.send("District Details Updated");
-  } catch (error) {
-    console.log(error);
+      await db.run(sqlQ);
+      response.send("District Details Updated");
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 module.exports = app;
